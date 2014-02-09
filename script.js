@@ -94,8 +94,9 @@ function renderGrid( angle, color ) {
         var x3 = x2 / zoom;
         var y3 = y2 / zoom;
         var pixelData = getPixelData( x3, y3 );
-        var circleRadius = radius * ( pixelData[ color ] / 255 );
-        circle( renderCtx, x2, y2, circleRadius );
+        var colorSize = pixelData[ color ] / 255;
+        circle( renderCtx, x2, y2, colorSize * radius );
+        // rect( renderCtx, x2, y2, colorSize * spacing, angle );
       }
     }
   }
@@ -107,6 +108,14 @@ function circle( ctx, x, y, r ) {
   ctx.arc( x, y, r, 0, TAU );
   ctx.fill();
   ctx.closePath();
+}
+
+function rect( ctx, x, y, size, angle ) {
+  ctx.save();
+  ctx.translate( x, y );
+  ctx.rotate( angle );
+  ctx.fillRect( -size, -size, size, size );
+  ctx.restore();
 }
 
 function getPixelData( x, y ) {
