@@ -9,11 +9,12 @@ var img = new Image();
 var canvas = document.createElement('canvas');
 var ctx = canvas.getContext('2d');
 var imgData;
-var spacing = 6;
+var spacing = 15;
+var zoom = 2;
 img.onload = imgLoaded;
 
 window.onload = function() {
-  img.src = 'portrait.jpg';
+  img.src = 'portrait2.jpg';
 };
 
 
@@ -22,13 +23,19 @@ var w, h, diag;
 function imgLoaded() {
   w = canvas.width = img.width;
   h = canvas.height = img.height;
-  var side = Math.max( w, h );
-  diag = side * ROOT_2;
 
   ctx.drawImage( img, 0, 0 );
   imgData = ctx.getImageData( 0, 0, w, h ).data;
-  // console.log(imgData.length );
+
+  // zoom
+  w *= zoom;
+  h *= zoom;
+  canvas.width = w;
+  canvas.height = h;
+  var side = Math.max( w, h );
+  diag = side * ROOT_2;
   ctx.clearRect( 0, 0, w, h );
+  // render each layout
   var layers = {
     red: renderGrid( 1, 'red' ),
     green: renderGrid( 2, 'green' ),
@@ -84,7 +91,9 @@ function renderGrid( angle, color ) {
       x2 += w / 2;
       y2 += h / 2;
       if ( x2 > 0 && x2 < w && y2 > 0 && y2 < h ) {
-        var pixelData = getPixelData( x2, y2 );
+        var x3 = x2 / zoom;
+        var y3 = y2 / zoom;
+        var pixelData = getPixelData( x3, y3 );
         var circleRadius = radius * ( pixelData[ color ] / 255 );
         circle( renderCtx, x2, y2, circleRadius );
       }
@@ -103,7 +112,7 @@ function circle( ctx, x, y, r ) {
 function getPixelData( x, y ) {
   x = Math.round( x );
   y = Math.round( y );
-  var pixelIndex = x + y * w;
+  var pixelIndex = x + y * img.width;
   pixelIndex *= 4;
   return {
     red: imgData[ pixelIndex + 0 ],
