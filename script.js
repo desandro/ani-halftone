@@ -9,16 +9,17 @@ var img = new Image();
 var canvas = document.createElement('canvas');
 var ctx = canvas.getContext('2d');
 var imgData;
-var spacing = 15;
-var zoom = 2;
+var spacing = 14;
+var repeatFrames = 10;
+var zoom = 1;
 img.onload = imgLoaded;
 
 window.onload = function() {
-  img.src = 'portrait2.jpg';
+  img.src = 'erin3.jpg';
 };
 
 
-var w, h, diag;
+var w, h, diag, renderCanvases;
 
 function imgLoaded() {
   w = canvas.width = img.width;
@@ -35,33 +36,58 @@ function imgLoaded() {
   var side = Math.max( w, h );
   diag = side * ROOT_2;
   ctx.clearRect( 0, 0, w, h );
-  // render each layout
-  var layers = {
-    red: renderGrid( 1, 'red' ),
-    green: renderGrid( 2, 'green' ),
-    blue: renderGrid( 3, 'blue' )
+
+  //
+  renderCanvases = {
+    red: getRenderCanvas(),
+    green: getRenderCanvas(),
+    blue: getRenderCanvas()
   };
+
+  // render each layout
+  document.body.appendChild( canvas );
+  render();
+
+}
+
+var frame = 0;
+
+function render() {
+  frame++;
+  renderGrid( 5, 'red' );
+  renderGrid( 4.5, 'green' );
+  renderGrid( 3, 'blue' );
+  ctx.globalCompositeOperation = 'source-over';
   ctx.fillStyle = 'black';
   ctx.fillRect( 0, 0, w, h );
   ctx.globalCompositeOperation = 'lighter';
-  ctx.drawImage( layers.red, 0, 0 );
-  ctx.drawImage( layers.green, 0, 0 );
-  ctx.drawImage( layers.blue, 0, 0 );
-  document.body.appendChild( canvas );
+  ctx.drawImage( renderCanvases.red.canvas, 0, 0 );
+  ctx.drawImage( renderCanvases.green.canvas, 0, 0 );
+  ctx.drawImage( renderCanvases.blue.canvas, 0, 0 );
+  setTimeout( render, 17 );
 }
 
+window.render = render;
+window.ctx = ctx;
 
-function renderGrid( angle, color ) {
+function getRenderCanvas() {
   var renderCanvas = document.createElement('canvas');
   renderCanvas.width = w;
   renderCanvas.height = h;
-  var renderCtx = renderCanvas.getContext('2d');
-  // renderCtx.fillStyle = 'black';
-  // renderCtx.fillRect( 0, 0, w, h );
+  return {
+    canvas: renderCanvas,
+    ctx: renderCanvas.getContext('2d')
+  };
+}
+
+function renderGrid( angle, color ) {
+  var renderCtx = renderCanvases[ color ].ctx;
+  renderCtx.fillStyle = 'black';
+  renderCtx.fillRect( 0, 0, w, h );
   var cols = Math.ceil( diag / spacing );
   var rows = Math.ceil( diag / spacing );
   var radius = spacing * ROOT_2 / 2;
-  
+
   switch ( color ) {
     case 'red' :
       renderCtx.fillStyle = 'rgb(255,0,0)';
@@ -73,11 +99,14 @@ function renderGrid( angle, color ) {
       renderCtx.fillStyle = 'rgb(0,0,255)';
       break;
   }
-  
+
+  var mod = ( frame % repeatFrames ) / repeatFrames || 1;
   for ( var row = 0; row < rows; row++ ) {
     for ( var col = 0; col < cols; col++ ) {
       var x1 = col * spacing + spacing / 2;
       var y1 = row * spacing + spacing / 2;
+      // move by x
+      x1 += ((frame % repeatFrames) / repeatFrames) * spacing;
       // offset for diagonal
       x1 -= ( diag - w ) / 2;
       y1 -= ( diag - h ) / 2;
@@ -100,7 +129,6 @@ function renderGrid( angle, color ) {
       }
     }
   }
-  return renderCanvas;
 }
 
 function circle( ctx, x, y, r ) {
