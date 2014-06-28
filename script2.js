@@ -7,15 +7,16 @@ var ROOT_2 = Math.sqrt( 2 );
 
 var img = new Image();
 var canvas = document.createElement('canvas');
+var displayImg = new Image();
 var ctx = canvas.getContext('2d');
 var imgData;
-var spacing = 12;
-var repeatFrames = 12;
-var zoom = 1;
+var spacing = 15;
+var repeatFrames = 8;
+var zoom = 1.0;
 img.onload = imgLoaded;
 
 window.onload = function() {
-  img.src = 'portrait3c.jpg';
+  img.src = 'erin3.jpg';
 };
 
 
@@ -45,7 +46,7 @@ function imgLoaded() {
   };
 
   // render each layout
-  document.body.appendChild( canvas );
+  document.body.appendChild( displayImg );
   render();
 
 }
@@ -57,9 +58,9 @@ function render() {
   // renderGrid( 5, 'red' );
   // renderGrid( 4.5, 'green' );
   // renderGrid( 3, 'blue' );
-  renderGrid( 1, 'red' );
-  renderGrid( 2.5, 'green' );
-  renderGrid( 5, 'blue' );
+  renderGrid( 2, 'red' );
+  renderGrid( 3, 'green' );
+  renderGrid( 4, 'blue' );
   ctx.globalCompositeOperation = 'source-over';
   ctx.fillStyle = 'black';
   ctx.fillRect( 0, 0, w, h );
@@ -67,11 +68,11 @@ function render() {
   ctx.drawImage( renderCanvases.red.canvas, 0, 0 );
   ctx.drawImage( renderCanvases.green.canvas, 0, 0 );
   ctx.drawImage( renderCanvases.blue.canvas, 0, 0 );
-  setTimeout( render, 17 );
+  // setTimeout( render, 17 );
+  displayImg.src = canvas.toDataURL();
 }
 
 window.render = render;
-window.ctx = ctx;
 
 function getRenderCanvas() {
   var renderCanvas = document.createElement('canvas');

@@ -9,13 +9,13 @@ var img = new Image();
 var canvas = document.createElement('canvas');
 var ctx = canvas.getContext('2d');
 var imgData;
-var spacing = 12;
+var spacing = 16;
 var repeatFrames = 12;
 var zoom = 1;
 img.onload = imgLoaded;
 
 window.onload = function() {
-  img.src = 'portrait3c.jpg';
+  img.src = 'anuak1.jpg';
 };
 
 
@@ -50,10 +50,10 @@ function imgLoaded() {
 
 }
 
-var frame = 0;
+var frame = 11;
 
 function render() {
-  frame++;
+  // frame++;
   // renderGrid( 5, 'red' );
   // renderGrid( 4.5, 'green' );
   // renderGrid( 3, 'blue' );
@@ -127,18 +127,25 @@ function renderGrid( angle, color ) {
         var y3 = y2 / zoom;
         var pixelData = getPixelData( x3, y3 );
         var colorSize = pixelData[ color ] / 255;
-        circle( renderCtx, x2, y2, colorSize * radius );
+        circle( renderCtx, x2, y2, colorSize * radius, angle );
         // rect( renderCtx, x2, y2, colorSize * spacing, angle );
       }
     }
   }
 }
 
-function circle( ctx, x, y, r ) {
-  ctx.beginPath();
-  ctx.arc( x, y, r, 0, TAU );
-  ctx.fill();
-  ctx.closePath();
+function circle( ctx, x, y, r, angle ) {
+  ctx.save();
+  ctx.translate( x, y );
+  ctx.rotate( angle )
+  ctx.fillRect( -r, -spacing/2, r*2, spacing +1);
+  ctx.restore();
+
+  // ctx.fillRect( x, y, r*2, r*2 );
+  // ctx.beginPath();
+  // ctx.arc( x, y, r, 0, TAU );
+  // ctx.fill();
+  // ctx.closePath();
 }
 
 function rect( ctx, x, y, size, angle ) {
