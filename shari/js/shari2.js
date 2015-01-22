@@ -6,23 +6,26 @@ var TAU = Math.PI * 2;
 var ROOT_2 = Math.sqrt( 2 );
 
 var img = new Image();
-var canvas = document.createElement('canvas');
-var ctx = canvas.getContext('2d');
+// var canvas = document.createElement('canvas');
+// var ctx = canvas.getContext('2d');
 var imgData;
 var spacing = 24;
 var repeatFrames = 12;
-var zoom = 2;
+var zoom = 3;
 img.onload = imgLoaded;
 
 window.onload = function() {
-  img.src = 'anuak1.jpg';
+  img.src = 'shari2.jpg';
 };
 
 var w, h, diag, renderCanvases;
 
 function imgLoaded() {
-  w = canvas.width = img.width;
-  h = canvas.height = img.height;
+  var refCanvas = document.createElement('canvas');
+  var ctx = refCanvas.getContext('2d');
+
+  w = refCanvas.width = img.width;
+  h = refCanvas.height = img.height;
 
   ctx.drawImage( img, 0, 0 );
   imgData = ctx.getImageData( 0, 0, w, h ).data;
@@ -30,8 +33,8 @@ function imgLoaded() {
   // zoom
   w *= zoom;
   h *= zoom;
-  canvas.width = w;
-  canvas.height = h;
+  refCanvas.width = w;
+  refCanvas.height = h;
   var side = Math.max( w, h );
   diag = side * ROOT_2;
   ctx.clearRect( 0, 0, w, h );
@@ -44,15 +47,19 @@ function imgLoaded() {
   };
 
   // render each layout
-  document.body.appendChild( canvas );
+  document.body.appendChild( refCanvas );
   render();
 
 }
 
-var frame = 11  ;
+var frame = 0  ;
 
 function render() {
-  // frame++;
+  var canvas = document.createElement('canvas');
+  cavnas.width = w;
+  canvas.height = h;
+
+  frame++;
   // renderGrid( 5, 'red' );
   // renderGrid( 4.5, 'green' );
   // renderGrid( 3, 'blue' );

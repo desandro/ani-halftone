@@ -9,13 +9,13 @@ var img = new Image();
 var canvas = document.createElement('canvas');
 var ctx = canvas.getContext('2d');
 var imgData;
-var spacing = 24;
-var repeatFrames = 12;
-var zoom = 2;
+var spacing = 14;
+var repeatFrames = 8;
+var zoom;
 img.onload = imgLoaded;
 
 window.onload = function() {
-  img.src = 'anuak1.jpg';
+  img.src = 'shari2.jpg';
 };
 
 var w, h, diag, renderCanvases;
@@ -26,6 +26,8 @@ function imgLoaded() {
 
   ctx.drawImage( img, 0, 0 );
   imgData = ctx.getImageData( 0, 0, w, h ).data;
+
+  zoom = 720 / w;
 
   // zoom
   w *= zoom;
@@ -49,10 +51,10 @@ function imgLoaded() {
 
 }
 
-var frame = 11  ;
+var frame = 0  ;
 
 function render() {
-  // frame++;
+  frame++;
   // renderGrid( 5, 'red' );
   // renderGrid( 4.5, 'green' );
   // renderGrid( 3, 'blue' );
@@ -60,9 +62,9 @@ function render() {
   renderGrid( 2.5, 'green' );
   renderGrid( 5, 'blue' );
   ctx.globalCompositeOperation = 'source-over';
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = 'white';
   ctx.fillRect( 0, 0, w, h );
-  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalCompositeOperation = 'darker';
   ctx.drawImage( renderCanvases.red.canvas, 0, 0 );
   ctx.drawImage( renderCanvases.green.canvas, 0, 0 );
   ctx.drawImage( renderCanvases.blue.canvas, 0, 0 );
@@ -84,7 +86,7 @@ function getRenderCanvas() {
 
 function renderGrid( angle, color ) {
   var renderCtx = renderCanvases[ color ].ctx;
-  renderCtx.fillStyle = 'black';
+  renderCtx.fillStyle = 'white';
   renderCtx.fillRect( 0, 0, w, h );
   var cols = Math.ceil( diag / spacing );
   var rows = Math.ceil( diag / spacing );
@@ -92,13 +94,13 @@ function renderGrid( angle, color ) {
 
   switch ( color ) {
     case 'red' :
-      renderCtx.fillStyle = 'rgb(255,0,0)';
+      renderCtx.fillStyle = 'rgb(0,255,255)';
       break;
     case 'green' :
-      renderCtx.fillStyle = 'rgb(0,255,0)';
+      renderCtx.fillStyle = 'rgb(255,0,255)';
       break;
     case 'blue' :
-      renderCtx.fillStyle = 'rgb(0,0,255)';
+      renderCtx.fillStyle = 'rgb(255,255,0)';
       break;
   }
 
@@ -125,7 +127,7 @@ function renderGrid( angle, color ) {
         var x3 = x2 / zoom;
         var y3 = y2 / zoom;
         var pixelData = getPixelData( x3, y3 );
-        var colorSize = pixelData[ color ] / 255;
+        var colorSize = 1- pixelData[ color ] / 255;
         circle( renderCtx, x2, y2, colorSize * radius, angle );
         // rect( renderCtx, x2, y2, colorSize * spacing, angle );
       }

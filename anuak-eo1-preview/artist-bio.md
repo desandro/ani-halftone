@@ -1,0 +1,1 @@
+Dave DeSandro is a designer and creative programmer living in Brooklyn, New York. His open-source library, Masonry, has been used to layout countless websites and apps. He runs Metafizzy, a one-man company, supporting commercial web libraries. He works at Twitter as a visual and user-experience designer on its flagship product.

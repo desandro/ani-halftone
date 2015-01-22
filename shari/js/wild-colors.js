@@ -9,13 +9,13 @@ var img = new Image();
 var canvas = document.createElement('canvas');
 var ctx = canvas.getContext('2d');
 var imgData;
-var spacing = 24;
-var repeatFrames = 12;
-var zoom = 2;
+var spacing = 14;
+var repeatFrames = 8;
+var zoom;
 img.onload = imgLoaded;
 
 window.onload = function() {
-  img.src = 'anuak1.jpg';
+  img.src = 'shari2.jpg';
 };
 
 var w, h, diag, renderCanvases;
@@ -26,6 +26,8 @@ function imgLoaded() {
 
   ctx.drawImage( img, 0, 0 );
   imgData = ctx.getImageData( 0, 0, w, h ).data;
+
+  zoom = 720 / w;
 
   // zoom
   w *= zoom;
@@ -49,16 +51,13 @@ function imgLoaded() {
 
 }
 
-var frame = 11  ;
+var frame = 0  ;
 
 function render() {
-  // frame++;
-  // renderGrid( 5, 'red' );
-  // renderGrid( 4.5, 'green' );
-  // renderGrid( 3, 'blue' );
-  renderGrid( 1, 'red' );
-  renderGrid( 2.5, 'green' );
-  renderGrid( 5, 'blue' );
+  frame++;
+  renderGrid( 5, 'red' );
+  renderGrid( 4.5, 'green' );
+  renderGrid( 3, 'blue' );
   ctx.globalCompositeOperation = 'source-over';
   ctx.fillStyle = 'black';
   ctx.fillRect( 0, 0, w, h );
@@ -92,13 +91,13 @@ function renderGrid( angle, color ) {
 
   switch ( color ) {
     case 'red' :
-      renderCtx.fillStyle = 'rgb(255,0,0)';
+      renderCtx.fillStyle = 'hsla(0,100%,80%,1)';
       break;
     case 'green' :
-      renderCtx.fillStyle = 'rgb(0,255,0)';
+      renderCtx.fillStyle = 'hsla(120,50%,80%,1)';
       break;
     case 'blue' :
-      renderCtx.fillStyle = 'rgb(0,0,255)';
+      renderCtx.fillStyle = 'hsla(240,100%,50%,1)';
       break;
   }
 
@@ -127,7 +126,6 @@ function renderGrid( angle, color ) {
         var pixelData = getPixelData( x3, y3 );
         var colorSize = pixelData[ color ] / 255;
         circle( renderCtx, x2, y2, colorSize * radius, angle );
-        // rect( renderCtx, x2, y2, colorSize * spacing, angle );
       }
     }
   }

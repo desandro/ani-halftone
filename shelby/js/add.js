@@ -9,13 +9,15 @@ var img = new Image();
 var canvas = document.createElement('canvas');
 var ctx = canvas.getContext('2d');
 var imgData;
-var spacing = 24;
-var repeatFrames = 12;
-var zoom = 2;
+var zoom;
 img.onload = imgLoaded;
 
+var isAdditive = true;
+
+var repeatFrames = 8;
+
 window.onload = function() {
-  img.src = 'anuak1.jpg';
+  img.src = 'img/1.jpg';
 };
 
 var w, h, diag, renderCanvases;
@@ -24,8 +26,11 @@ function imgLoaded() {
   w = canvas.width = img.width;
   h = canvas.height = img.height;
 
+
   ctx.drawImage( img, 0, 0 );
   imgData = ctx.getImageData( 0, 0, w, h ).data;
+
+  zoom = 720 / w;
 
   // zoom
   w *= zoom;
@@ -49,20 +54,20 @@ function imgLoaded() {
 
 }
 
-var frame = 11  ;
+var frame = 0  ;
 
 function render() {
-  // frame++;
-  // renderGrid( 5, 'red' );
-  // renderGrid( 4.5, 'green' );
-  // renderGrid( 3, 'blue' );
-  renderGrid( 1, 'red' );
-  renderGrid( 2.5, 'green' );
-  renderGrid( 5, 'blue' );
+  frame++;
+  // renderGrid( Math.PI / 3, 'red', 30, 'square' );
+  // renderGrid( -1.5 , 'green', 24, 'circle' );
+  // renderGrid( -1.5 + Math.PI / 4, 'blue', 14, 'line' );
+  renderGrid( 1 + TAU / 3, 'red', 20, 'circle' );
+  renderGrid( 1 + TAU * 2 / 3, 'green', 24, 'circle' );
+  renderGrid( 1, 'blue', 14, 'circle' );
   ctx.globalCompositeOperation = 'source-over';
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = isAdditive ? 'black' : 'white';
   ctx.fillRect( 0, 0, w, h );
-  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalCompositeOperation = isAdditive ? 'lighter' : 'darker';
   ctx.drawImage( renderCanvases.red.canvas, 0, 0 );
   ctx.drawImage( renderCanvases.green.canvas, 0, 0 );
   ctx.drawImage( renderCanvases.blue.canvas, 0, 0 );
@@ -82,25 +87,26 @@ function getRenderCanvas() {
   };
 }
 
-function renderGrid( angle, color ) {
+function renderGrid( angle, color, spacing, shape ) {
   var renderCtx = renderCanvases[ color ].ctx;
-  renderCtx.fillStyle = 'black';
+  renderCtx.fillStyle = isAdditive ? 'black' : 'white';
   renderCtx.fillRect( 0, 0, w, h );
   var cols = Math.ceil( diag / spacing );
   var rows = Math.ceil( diag / spacing );
-  var radius = spacing * ROOT_2 / 2;
 
   switch ( color ) {
     case 'red' :
-      renderCtx.fillStyle = 'rgb(255,0,0)';
+      renderCtx.fillStyle = isAdditive ? 'rgb(255,0,0)' : 'rgb(0,255,255)';
       break;
     case 'green' :
-      renderCtx.fillStyle = 'rgb(0,255,0)';
+      renderCtx.fillStyle = isAdditive ? 'rgb(0,0,255)' : 'rgb(255,0,255)';
       break;
     case 'blue' :
-      renderCtx.fillStyle = 'rgb(0,0,255)';
+      renderCtx.fillStyle = isAdditive ? 'rgb(0,255,0)' : 'rgb(255,550,0)';
       break;
   }
+
+  var renderShape = shapeRenders[ shape ];
 
   // var mod = ( frame % repeatFrames ) / repeatFrames || 1;
   for ( var row = 0; row < rows; row++ ) {
@@ -126,23 +132,52 @@ function renderGrid( angle, color ) {
         var y3 = y2 / zoom;
         var pixelData = getPixelData( x3, y3 );
         var colorSize = pixelData[ color ] / 255;
-        circle( renderCtx, x2, y2, colorSize * radius, angle );
-        // rect( renderCtx, x2, y2, colorSize * spacing, angle );
+        colorSize = isAdditive ? colorSize : 1 -colorSize;
+        // colorSize *= color === 'green' ? 0.5 : 1;
+        // colorSize = color === 'green' ? 0.5 : 1;
+        // render dot
+        var size = colorSize * spacing;
+        renderShape( renderCtx, x2, y2, size, angle, spacing );
+
       }
     }
   }
 }
 
-function circle( ctx, x, y, r ) {
-  ctx.beginPath();
-  ctx.arc( x, y, r, 0, TAU );
-  ctx.fill();
-  ctx.closePath();
-}
+// hash of functions that render the shape
+var shapeRenders = {
+
+  circle: function( ctx, x, y, size ) {
+    size *= ROOT_2 / 2;
+    ctx.beginPath();
+    ctx.arc( x, y, size, 0, TAU );
+    ctx.fill();
+    ctx.closePath();
+  },
+  
+  line: function( ctx, x, y, size, angle, spacing ) {
+    ctx.save();
+    ctx.translate( x, y );
+    ctx.rotate( angle );
+    ctx.fillRect( -spacing, -size / 2, spacing+1, size  );
+    ctx.restore();
+  },
+
+  square: function( ctx, x, y, size, angle ) {
+    ctx.save();
+    ctx.translate( x, y );
+    ctx.rotate( angle );
+    ctx.fillRect( -size / 2, -size / 2, size, size );
+    ctx.restore();
+  }
+
+};
 
 function getPixelData( x, y ) {
   x = Math.round( x );
   y = Math.round( y );
+  x = Math.max( 0, Math.min( img.width, x ) );
+  y = Math.max( 0, Math.min( img.height, y ) );
   var pixelIndex = x + y * img.width;
   pixelIndex *= 4;
   return {

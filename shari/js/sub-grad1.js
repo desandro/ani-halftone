@@ -9,13 +9,15 @@ var img = new Image();
 var canvas = document.createElement('canvas');
 var ctx = canvas.getContext('2d');
 var imgData;
-var spacing = 24;
-var repeatFrames = 12;
-var zoom = 2;
+var spacing = 22;
+var repeatFrames = 8;
+var zoom;
 img.onload = imgLoaded;
 
+var isAdditive = true;
+
 window.onload = function() {
-  img.src = 'anuak1.jpg';
+  img.src = 'img/sub-grad2.jpg';
 };
 
 var w, h, diag, renderCanvases;
@@ -26,6 +28,8 @@ function imgLoaded() {
 
   ctx.drawImage( img, 0, 0 );
   imgData = ctx.getImageData( 0, 0, w, h ).data;
+
+  zoom = 720 / w;
 
   // zoom
   w *= zoom;
@@ -49,20 +53,17 @@ function imgLoaded() {
 
 }
 
-var frame = 11  ;
+var frame = 0  ;
 
 function render() {
-  // frame++;
-  // renderGrid( 5, 'red' );
-  // renderGrid( 4.5, 'green' );
-  // renderGrid( 3, 'blue' );
+  frame++;
   renderGrid( 1, 'red' );
-  renderGrid( 2.5, 'green' );
-  renderGrid( 5, 'blue' );
+  renderGrid( 5.5, 'green' );
+  renderGrid( 3, 'blue' );
   ctx.globalCompositeOperation = 'source-over';
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = isAdditive ? 'black' : 'white';
   ctx.fillRect( 0, 0, w, h );
-  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalCompositeOperation = isAdditive ? 'lighter' : 'darker';
   ctx.drawImage( renderCanvases.red.canvas, 0, 0 );
   ctx.drawImage( renderCanvases.green.canvas, 0, 0 );
   ctx.drawImage( renderCanvases.blue.canvas, 0, 0 );
@@ -84,7 +85,7 @@ function getRenderCanvas() {
 
 function renderGrid( angle, color ) {
   var renderCtx = renderCanvases[ color ].ctx;
-  renderCtx.fillStyle = 'black';
+  renderCtx.fillStyle = isAdditive ? 'black' : 'white';
   renderCtx.fillRect( 0, 0, w, h );
   var cols = Math.ceil( diag / spacing );
   var rows = Math.ceil( diag / spacing );
@@ -92,13 +93,13 @@ function renderGrid( angle, color ) {
 
   switch ( color ) {
     case 'red' :
-      renderCtx.fillStyle = 'rgb(255,0,0)';
+      renderCtx.fillStyle = isAdditive ? 'rgb(255,0,0)' : 'rgb(0,255,255)';
       break;
     case 'green' :
-      renderCtx.fillStyle = 'rgb(0,255,0)';
+      renderCtx.fillStyle = isAdditive ? 'rgb(0,255,0)' : 'rgb(255,0,255)';
       break;
     case 'blue' :
-      renderCtx.fillStyle = 'rgb(0,0,255)';
+      renderCtx.fillStyle = isAdditive ? 'rgb(0,0,255)' : 'rgb(255,255,0)';
       break;
   }
 
@@ -126,6 +127,7 @@ function renderGrid( angle, color ) {
         var y3 = y2 / zoom;
         var pixelData = getPixelData( x3, y3 );
         var colorSize = pixelData[ color ] / 255;
+        colorSize = isAdditive ? colorSize : 1 -colorSize;
         circle( renderCtx, x2, y2, colorSize * radius, angle );
         // rect( renderCtx, x2, y2, colorSize * spacing, angle );
       }

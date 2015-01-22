@@ -10,12 +10,12 @@ var canvas = document.createElement('canvas');
 var ctx = canvas.getContext('2d');
 var imgData;
 var spacing = 24;
-var repeatFrames = 12;
-var zoom = 2;
+var repeatFrames = 8;
+var zoom = 3;
 img.onload = imgLoaded;
 
 window.onload = function() {
-  img.src = 'anuak1.jpg';
+  img.src = 'shari2.jpg';
 };
 
 var w, h, diag, renderCanvases;
@@ -49,10 +49,10 @@ function imgLoaded() {
 
 }
 
-var frame = 11  ;
+var frame = 0  ;
 
 function render() {
-  // frame++;
+  frame++;
   // renderGrid( 5, 'red' );
   // renderGrid( 4.5, 'green' );
   // renderGrid( 3, 'blue' );
