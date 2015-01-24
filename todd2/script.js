@@ -10,6 +10,7 @@ var imgData;
 var size = 1 / 24; /* proportion of img width */
 var zoom;
 img.onload = imgLoaded;
+var repeatFrames = 16;
 
 var w, h, diag;
 
@@ -17,7 +18,7 @@ window.onload = function() {
   // img.src = 'img/todd1.jpg';
   // img.src = '../boca-raton/img/boca-raton1.jpg';
   // img.src = '../shari/img/shari2.jpg';
-  // img.src = '../jungle/img/jungle1.jpg';
+  // img.src = '../jungle/img/jungle2.jpg';
   img.src = '../img/me-fri-halo1.jpg';
 };
 
@@ -41,8 +42,11 @@ function imgLoaded() {
   document.body.appendChild( canvas );
 }
 
+var frame = 0;
+
 
 function render() {
+  frame++;
 
   ctx.fillStyle = 'black';
   ctx.fillRect( 0, 0, w, h );
@@ -50,13 +54,16 @@ function render() {
   var cols = Math.ceil( w / pixelSize );
   var rows = Math.ceil( h / (pixelSize / 2) );
   var dotColor, squareColor, dotSize;
-  var diamondOffset = pixelSize * 0.53;
+  var diamondOffset = pixelSize * 0.525;
+
+  var frameOffsetY = (pixelSize) * ( ( frame % repeatFrames ) / repeatFrames )
+
   for ( var row = 0; row < rows; row++ ) {
     for ( var col = 0; col < cols; col++ ) {
       var x = ( col + 0.5 ) * pixelSize;
       x += row % 2 ? pixelSize / 2 : 0;
 
-      var y = ( row + 0.5 ) * (pixelSize / 2);
+      var y = ( row + 0.5 ) * (pixelSize / 2) - frameOffsetY;
       var pixelData = getPixelData( x / zoom, y / zoom );
       var hsl = rgb2hsl( pixelData.red, pixelData.green, pixelData.blue );
       // var hueColor = 'hsl(' + hsl.hue + ',100%,50%)';
@@ -64,35 +71,21 @@ function render() {
       var sat = 100;
       var hue = Math.round( Math.round( hsl.hue / 60 ) * 60);
       var hueColor = 'hsl(' + hsl.hue + ',' + sat + '%,50%)';
-      
-      if ( hsl.lum < 0.25 ) {
-        // color dot on black
-        squareColor = 'black';
-        dotColor = hueColor;
-        dotSize = hsl.lum / 0.25;
-      } else if ( hsl.lum < 0.5 ) {
-        // black dot on color
-        squareColor = hueColor;
+      var squareColor = hueColor;
+      if ( hsl.lum < 0.5 ) {
+        // black dot
         dotColor = 'black';
-        dotSize = ( 0.5 - hsl.lum )  / 0.25;
-      } else if ( hsl.lum < 0.75 ) {
-        // white dot on color
+        dotSize = (0.5 - hsl.lum) / 0.5;
+      } else {
+        // white dot
         squareColor = hueColor;
         dotColor = 'white';
-        dotSize = ( hsl.lum - 0.5 )  / 0.25;
-      } else {
-        // color dot on white
-        squareColor = 'white';
-        dotColor = hueColor;
-        dotSize = ( 1 - hsl.lum ) / 0.25;
+        dotSize = ( hsl.lum - 0.5 ) / 0.5;
       }
 
-      dotSize = Math.max( dotSize, 0 );
+      dotSize
+      // dotSize = Math.max( dotSize, 0 );
 
-      // ctx.fillStyle = 'rgb(' + pixelData.red + ',' + pixelData.green + ',' +
-      //   pixelData.blue + ')';
-      // ctx.fillStyle = 'hsl(' + hsl.hue + ',' + (hsl.sat*100) + '%,' +
-      //   (hsl.lum*100) + '%)';
       // square
       ctx.fillStyle = squareColor;
       var rectX = x - pixelSize * 0.5;
@@ -105,9 +98,8 @@ function render() {
       ctx.lineTo( x, y - diamondOffset );
       ctx.fill();
       ctx.closePath();
-      // ctx.fillRect( rectX, rectY, pixelSize, pixelSize );
       // dot
-      var dotRadius = Math.sqrt( (pixelSize * pixelSize) / TAU ) * dotSize * 1 / ROOT_2;
+      var dotRadius = (pixelSize * dotSize *0.85) * 0.5;
       ctx.fillStyle = dotColor;
       ctx.beginPath();
       ctx.arc( x, y, dotRadius, 0, TAU );
@@ -155,4 +147,9 @@ function rgb2hsl( r, g, b ) {
   return { hue: H, sat: parseFloat(S), lum: parseFloat(L) };
   
   // } [H, parseFloat(S), parseFloat(L)];
+}
+
+function animate() {
+  render();
+  setTimeout( animate, 17 );
 }
