@@ -15,15 +15,7 @@ var repeatFrames = 16;
 var w, h, diag;
 
 window.onload = function() {
-  // img.src = '../todd/img/todd1.jpg';
-  // img.src = '../hugo/img/hugo.jpg';
-  // img.src = '../louise/img/louise3.jpg';
-  // img.src = '../ncsu/img/1.jpg';
-  img.src = '../shelby/img/1.jpg';
-  // img.src = '../boca-raton/img/boca-raton1.jpg';
-  // img.src = '../shari/img/shari2.jpg';
-  // img.src = '../jungle/img/jungle2.jpg';
-  // img.src = '../img/me-fri-halo3.jpg';
+  img.src = 'img/angelis4.jpg';
 };
 
 function imgLoaded() {

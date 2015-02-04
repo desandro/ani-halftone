@@ -1,5 +1,3 @@
-/*jshint unused: false */
-
 var TAU = Math.PI * 2;
 var ROOT_2 = Math.sqrt( 2 );
 
@@ -7,30 +5,23 @@ var img = new Image();
 var canvas = document.createElement('canvas');
 var ctx = canvas.getContext('2d');
 var imgData;
-var size = 1 / 18; /* proportion of img width */
+var size = 1 / 16; /* proportion of img width */
+var repeatFrames = 16;
+var frame = 0;
 var zoom;
 img.onload = imgLoaded;
-var repeatFrames = 16;
 
-var w, h, diag;
+var w, h;
 
 window.onload = function() {
-  // img.src = '../todd/img/todd1.jpg';
-  // img.src = '../hugo/img/hugo.jpg';
-  // img.src = '../louise/img/louise3.jpg';
-  // img.src = '../ncsu/img/1.jpg';
-  img.src = '../shelby/img/1.jpg';
-  // img.src = '../boca-raton/img/boca-raton1.jpg';
-  // img.src = '../shari/img/shari2.jpg';
-  // img.src = '../jungle/img/jungle2.jpg';
-  // img.src = '../img/me-fri-halo3.jpg';
+  img.src = 'img/angelis4.jpg';
 };
 
 function imgLoaded() {
   w = canvas.width = img.width;
   h = canvas.height = img.height;
 
-  zoom = 540 / w;
+  zoom = 1200 / w;
 
   ctx.drawImage( img, 0, 0 );
   imgData = ctx.getImageData( 0, 0, w, h ).data;
@@ -46,10 +37,9 @@ function imgLoaded() {
   document.body.appendChild( canvas );
 }
 
-var frame = 0;
-
 
 function render() {
+  
   frame++;
 
   ctx.fillStyle = 'black';
@@ -58,43 +48,58 @@ function render() {
   var cols = Math.ceil( w / pixelSize );
   var rows = Math.ceil( h / (pixelSize / 2) );
   var dotColor, squareColor, dotSize;
-  var diamondOffset = pixelSize * 0.525;
+  var diamondOffset = pixelSize * 0.53;
 
-  var frameOffsetY = (pixelSize) * ( ( frame % repeatFrames ) / repeatFrames )
+  var frameOffsetY = (pixelSize) * ( ( frame % repeatFrames ) / repeatFrames );
 
   for ( var row = 0; row < rows; row++ ) {
     for ( var col = 0; col < cols; col++ ) {
       var x = ( col + 0.5 ) * pixelSize;
       x += row % 2 ? pixelSize / 2 : 0;
-      // x -= frameOffsetY;
 
-      var y = ( row + 0.5 ) * (pixelSize / 2) + frameOffsetY;
+      var y = ( row + 0.5 ) * (pixelSize / 2);
+      y += frameOffsetY;
+      // x -= frameOffsetY;
       var pixelData = getPixelData( x / zoom, y / zoom );
       var hsl = rgb2hsl( pixelData.red, pixelData.green, pixelData.blue );
       // var hueColor = 'hsl(' + hsl.hue + ',100%,50%)';
       // var sat = ( hsl.sat * 0.5 + 0.5 ) * 100;
       var sat = 100;
-      var hue = Math.round( Math.round( hsl.hue / 60 ) * 60);
+      // var hue = Math.round( Math.round( hsl.hue / 120 ) * 120);
       var hueColor = 'hsl(' + hsl.hue + ',' + sat + '%,50%)';
-      var squareColor = hueColor;
-      if ( hsl.lum < 0.5 ) {
-        // black dot
+      
+      if ( hsl.lum < 0.25 ) {
+        // color dot on black
+        squareColor = 'black';
+        dotColor = hueColor;
+        dotSize = hsl.lum / 0.25;
+      } else if ( hsl.lum < 0.5 ) {
+        // black dot on color
+        squareColor = hueColor;
         dotColor = 'black';
-        dotSize = (0.5 - hsl.lum) / 0.5;
-      } else {
-        // white dot
+        dotSize = ( 0.5 - hsl.lum )  / 0.25;
+      } else if ( hsl.lum < 0.75 ) {
+        // white dot on color
         squareColor = hueColor;
         dotColor = 'white';
-        dotSize = ( hsl.lum - 0.5 ) / 0.5;
+        dotSize = ( hsl.lum - 0.5 )  / 0.25;
+      } else {
+        // color dot on white
+        squareColor = 'white';
+        dotColor = hueColor;
+        dotSize = ( 1 - hsl.lum ) / 0.25;
       }
 
-      dotSize
-      // dotSize = Math.max( dotSize, 0 );
+      dotSize = Math.max( dotSize, 0 );
 
+      // ctx.fillStyle = 'rgb(' + pixelData.red + ',' + pixelData.green + ',' +
+      //   pixelData.blue + ')';
+      // ctx.fillStyle = 'hsl(' + hsl.hue + ',' + (hsl.sat*100) + '%,' +
+      //   (hsl.lum*100) + '%)';
       // square
       ctx.fillStyle = squareColor;
-      var rectX = x - pixelSize * 0.5;
-      var rectY = y - pixelSize * 0.5;
+      // var rectX = x - pixelSize * 0.5;
+      // var rectY = y - pixelSize * 0.5;
       ctx.beginPath();
       ctx.moveTo( x, y - diamondOffset );
       ctx.lineTo( x + diamondOffset, y );
@@ -103,8 +108,9 @@ function render() {
       ctx.lineTo( x, y - diamondOffset );
       ctx.fill();
       ctx.closePath();
+      // ctx.fillRect( rectX, rectY, pixelSize, pixelSize );
       // dot
-      var dotRadius = (pixelSize * dotSize *0.85) * 0.5;
+      var dotRadius = Math.sqrt( (pixelSize * pixelSize) / TAU ) * dotSize * 1 / ROOT_2;
       ctx.fillStyle = dotColor;
       ctx.beginPath();
       ctx.arc( x, y, dotRadius, 0, TAU );
@@ -113,6 +119,7 @@ function render() {
     }
   }
 
+  // setTimeout( render, 17 )
 }
 
 function getPixelData( x, y ) {
@@ -152,9 +159,4 @@ function rgb2hsl( r, g, b ) {
   return { hue: H, sat: parseFloat(S), lum: parseFloat(L) };
   
   // } [H, parseFloat(S), parseFloat(L)];
-}
-
-function animate() {
-  render();
-  setTimeout( animate, 17 );
 }
